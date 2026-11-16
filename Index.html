@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My App</title>
+<style>
+  :root{
+    --bg:#0b0f14;
+    --card:#131a22;
+    --text:#e6edf3;
+    --muted:#8b98a5;
+    --accent:#3b82f6;
+    --border:#1f2a36;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:24px}
+  header{text-align:center;padding:32px 0}
+  header h1{margin:0 0 8px;font-size:2rem}
+  header p{margin:0;color:var(--muted)}
+
+  /* hero shot */
+  #heroShot{
+    margin:24px auto;
+    max-width:560px;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid var(--border);
+    background:var(--card);
+  }
+  #heroShot img{width:100%;display:block}
+
+  /* screenshot gallery */
+  #shots{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:14px;
+    margin:24px 0;
+  }
+  .shot{
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid var(--border);
+    background:var(--card);
+    cursor:zoom-in;
+    transition:transform .15s;
+  }
+  .shot:hover{transform:scale(1.03)}
+  .shot img{width:100%;display:block;aspect-ratio:9/16;object-fit:cover}
+
+  /* viewer (zoom) */
+  #viewer{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.92);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:100;
+    cursor:zoom-out;
+  }
+  #viewer.on{display:flex}
+  #viewer img{max-width:100%;max-height:100%;border-radius:12px}
+
+  /* sections */
+  section{margin:40px 0}
+  section h2{
+    font-size:1.3rem;
+    margin:0 0 16px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+  }
+
+  /* features */
+  #featList{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+  #featList li{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px 16px;
+  }
+  #featList b{display:block;margin-bottom:4px}
+  #featList span{color:var(--muted);font-size:.95rem}
+
+  /* updates / changelog */
+  #log{list-style:none;padding:0;margin:0;display:grid;gap:16px}
+  #log > li{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+  }
+  #log h3{
+    margin:0 0 8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:1.05rem;
+  }
+  #log time{color:var(--muted);font-size:.85rem;font-weight:400}
+  #log ul{margin:0;padding-left:20px;color:var(--muted)}
+
+  /* faq */
+  #faqList{display:grid;gap:10px}
+  #faqList details{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px 16px;
+  }
+  #faqList summary{cursor:pointer;font-weight:600}
+  #faqList p{margin:10px 0 0;color:var(--muted)}
+
+  /* footer links */
+  footer{
+    text-align:center;
+    padding:32px 0;
+    border-top:1px solid var(--border);
+    margin-top:40px;
+  }
+  #links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  #links a{
+    color:#fff;
+    background:var(--accent);
+    text-decoration:none;
+    padding:10px 18px;
+    border-radius:10px;
+    font-weight:600;
+    font-size:.95rem;
+    transition:opacity .15s;
+  }
+  #links a:hover{opacity:.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>My App</h1>
+    <p>Yaha apni app ka chhota tagline likh</p>
+  </header>
+
+  <div id="heroShot"></div>
+  <div id="shots"></div>
+
+  <section>
+    <h2>Features</h2>
+    <ul id="featList"></ul>
+  </section>
+
+  <section>
+    <h2>What's New</h2>
+    <ul id="log"></ul>
+  </section>
+
+  <section>
+    <h2>FAQ</h2>
+    <div id="faqList"></div>
+  </section>
+
+  <footer>
+    <div id="links"></div>
+  </footer>
+</div>
+
+<!-- Zoom viewer -->
+<div id="viewer"><img alt="preview" /></div>
+
+<script>
+/* ============================================================
+   👇 SIRF YAHI EDIT KARNA HAI — apni values daal
+   ============================================================ */
+const CONFIG = {
+  // 🖼️ Top ki badi image
+  heroImage: "images/hero.png",
+
+  // 🖼️ Gallery screenshots (jitni chahe utni)
+  screenshots: [
+    "images/shot1.png",
+    "images/shot2.png",
+    "images/shot3.png"
+  ],
+
+  // ✨ Features
+  features: [
+    { t: "Fast & Light", d: "Bina lag ke chalta hai, smooth experience." },
+    { t: "Secure", d: "Aapka data 100% safe rehta hai." },
+    { t: "Free Updates", d: "Lifetime free updates milenge." }
+  ],
+
+  // 📝 Updates / Changelog
+  updates: [
+    {
+      v: "v1.2",
+      date: "10 May 2024",
+      notes: ["Dark mode added", "Bug fixes", "Speed improved"]
+    },
+    {
+      v: "v1.0",
+      date: "1 Jan 2024",
+      notes: ["First public release"]
+    }
+  ],
+
+  // ❓ FAQ
+  faq: [
+    { q: "Kya ye free hai?", a: "Haan, 100% free hai." },
+    { q: "Kaise install karein?", a: "Play Store se download karke install karo." }
+  ],
+
+  // 🔗 Footer links
+  telegramChannel: "https://t.me/YourChannel",
+  telegramGroup:   "https://t.me/YourGroup",
+  contactUrl:      "mailto:you@example.com"
+};
+/* ============================================================
+   👆 YAHI TAK EDIT — neeche code ko mat chhed
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c =>
+  ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const isSet = v => v && v.trim() !== "" && v !== "#";
+
+function shotNode(src, label, box, zoom){
+  const img = document.createElement("img");
+  img.alt = label;
+  img.onload = () => { box.textContent = ""; box.appendChild(img); };
+  img.onerror = () => { box.textContent = label + " (image missing)"; };
+  img.src = src;
+
+  if (zoom) img.addEventListener("click", () => {
+    $("viewer").querySelector("img").src = src;
+    $("viewer").classList.add("on");
+  });
+  box.textContent = label;
+}
+
+shotNode(CONFIG.heroImage, "Add shot1.png", $("heroShot"), false);
+
+const shots = $("shots");
+CONFIG.screenshots.forEach((src, i) => {
+  const box = document.createElement("div");
+  box.className = "shot";
+  shots.appendChild(box);
+  shotNode(src, "Screenshot " + (i + 1), box, true);
+});
+
+$("viewer").addEventListener("click", () => $("viewer").classList.remove("on"));
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") $("viewer").classList.remove("on");
+});
+
+/* features */
+$("featList").innerHTML = CONFIG.features.map(f =>
+  `<li><b>${esc(f.t)}</b><span>${esc(f.d)}</span></li>`).join("");
+
+/* updates */
+$("log").innerHTML = CONFIG.updates.map(u =>
+  `<li>
+     <h3>${esc(u.v)}<time>${esc(u.date)}</time></h3>
+     <ul>${u.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>
+   </li>`).join("");
+
+/* faq */
+$("faqList").innerHTML = CONFIG.faq.map(f =>
+  `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("");
+
+/* footer links */
+const links = [
+  ["Telegram channel", https://t.me/MIKU_MODX],
+  ["Telegram group",   https://t.me/+HOhUBIF9dSs1NTRl],
+  ["Contact me",       https://t.me/@Murii_murii]
+].filter(l => isSet(l[1]));
+
+$("links").innerHTML = links.map(l =>
+  `<a href="${esc(l[1])}" target="_blank" rel="noopener">${l[0]}</a>`).join("");
+</script>
+</body>
+</html>
